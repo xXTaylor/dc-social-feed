@@ -80,7 +80,8 @@
             };
 
             var succcesInsert = function(response) {
-                console.log(response); 
+                let item = createPostItem(response);
+                insertIntoFeed(item);
             };
 
             var errorInsert = function(xhr, error){

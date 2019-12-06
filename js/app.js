@@ -15,12 +15,8 @@ function insertPost(data, successCallback, errorCallback) {
 
     $.ajax({
         type: "POST",
+        data : data,
         url: api_url + 'api/posts',
-        data: data,
-        crossDomain: true,
-        dataType: "json",
-        contentType: 'application/x-www-form-urlencoded', 
-        xhrFields: { withCredentials: true }, 
         success: successCallback,
         error : errorCallback
       });
