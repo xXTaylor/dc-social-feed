@@ -1,0 +1,85 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
+
+    <title>My Social Feed</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer/">
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- Custom styles for this template -->
+    <link href="/css/sticky-footer.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <!-- Begin page content -->
+    <main role="main" class="container">
+      <h1 class="mt-5">Social Feed</h1>
+      <p class="lead">View my social feed.</p>
+      <form>
+          <div class="form-group">
+            <input type="text" class="form-control" name="post" id="post" placeholder="Enter Posts" />
+          </div>
+
+          <div class="form-group">
+            <input type="text" class="form-control" name="user" id="user" placeholder="Enter User Name" />
+          </div>
+
+          <div class="form-group">
+                <button class="btn btn-success" onclick="submitPost(event)">
+                    Add Post
+                </button>
+          </div>
+      </form>
+      <div id="feed">
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <span class="text-muted">Place sticky footer content here.</span>
+      </div>
+    </footer>
+  </body>
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="./js/app.js"></script>
+  <script type="text/javascript">
+        getPosts(function(response){
+            for(let i = 0; i< response.length; i++) {
+                let item = createPostItem(response[i]);
+                insertIntoFeed(item);
+            }
+
+        }, function(xhr, error){
+            console.log(error);
+        });
+
+        function submitPost() {
+            event.preventDefault()
+            
+            let data = {
+                post: $("#post").val(),
+                user : $("#user").val(),
+            };
+
+            insertPost(data, function(response) {
+                console.log(response); 
+            }, function(xhr, error){
+                console.log(error);
+            })
+        }
+  </script>
+</html>
