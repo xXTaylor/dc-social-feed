@@ -57,29 +57,39 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
   <script src="./js/app.js"></script>
   <script type="text/javascript">
-        getPosts(function(response){
+        var successFunction = function(response){
+
             for(let i = 0; i< response.length; i++) {
                 let item = createPostItem(response[i]);
                 insertIntoFeed(item);
             }
 
-        }, function(xhr, error){
+        };
+
+        var errorFunction = function(xhr, error){
             console.log(error);
-        });
+        }
+        getPosts(successFunction ,errorFunction );
 
         function submitPost() {
             event.preventDefault()
-            
-            let data = {
+
+            let data = {  
                 post: $("#post").val(),
                 user : $("#user").val(),
             };
 
-            insertPost(data, function(response) {
+            var succcesInsert = function(response) {
                 console.log(response); 
-            }, function(xhr, error){
+            };
+
+            var errorInsert = function(xhr, error){
                 console.log(error);
-            })
+            }
+
+            insertPost(data, succcesInsert, errorInsert);
         }
+
+        
   </script>
 </html>
