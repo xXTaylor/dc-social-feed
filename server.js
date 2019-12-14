@@ -87,21 +87,14 @@ app.put('/api/posts/:id', function (req, res) {
     db.one(query, data)
         .then((result) => {
 
-            db.one(query, data)
-                .then((result) => {
-
-                    db.one("SELECT * FROM posts JOIN users ON posts.user_id=users.id WHERE posts.id=$1", [result.id])
-                        .then((results) => {
-                            res.setHeader('Content-Type', 'application/json');
-                            res.end(JSON.stringify(results));
-                        })
-                        .catch((e) => {
-                            console.error(e);
-                        });
+            db.one("SELECT * FROM posts JOIN users ON posts.user_id=users.id WHERE posts.id=$1", [result.id])
+                .then((results) => {
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify(results));
                 })
                 .catch((e) => {
                     console.error(e);
-                });
+            });
 
         })
         .catch((e) => {
