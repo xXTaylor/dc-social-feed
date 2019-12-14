@@ -20,7 +20,7 @@ app.use(cors())
 
 
 app.get('/api/posts', function (req, res) {
-    db.query('SELECT * FROM posts')
+    db.query('SELECT * FROM posts JOIN users ON posts.user_id = users.id')
         .then((results) => {
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(results));
@@ -181,6 +181,55 @@ app.post('/api/login', function (req, res) {
         res.status(434).send('Both email and password is required to login')
     }
 
+});
+
+app.get('/api/comments', function (req, res) {
+    db.query('SELECT * FROM comments JOIN users on comments.user_id = users.id')
+        .then((results) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(results));
+        })
+        .catch((e) => {
+            console.error(e);
+        });
+});
+
+app.get('/api/comments/user/:id', function (req, res) {
+    let id = req.params.id;
+
+    db.query('SELECT * FROM comments JOIN users on comments.user_id = users.id WHERE users.id=$1', [id])
+        .then((results) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(results));
+        })
+        .catch((e) => {
+            console.error(e);
+        });
+});
+
+app.get('/api/comments/post/:id', function (req, res) {
+    let id = req.params.id;
+
+    db.query('SELECT * FROM comments JOIN users on comments.user_id = users.id WHERE comments.post_id=$1', [id])
+        .then((results) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(results));
+        })
+        .catch((e) => {
+            console.error(e);
+        });
+});
+
+
+app.get('/api/users', function (req, res) {
+    db.query('SELECT * FROM users')
+        .then((results) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(results));
+        })
+        .catch((e) => {
+            console.error(e);
+        });
 });
 
 

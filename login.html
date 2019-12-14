@@ -30,7 +30,7 @@
       
       <label for="inputEmail" class="sr-only">Email address</label>
       <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
-      
+
       <label for="inputPassword" class="sr-only">Password</label>
       <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
       
@@ -42,6 +42,7 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  
   <script src="./js/app.js"></script>
   <script src="./js/jquery.js"></script>
   <script type="text/javascript">
@@ -50,7 +51,10 @@
         event.preventDefault();
 
         let email_input = $('#inputEmail').val();
+        // let email_input = document.getElementById('inputEmail').val
+
         let password_input = $('#inputPassword').val();
+        // let email_input = document.getElementById('inputPassword').val
 
         let data = {
           email : email_input,
@@ -62,12 +66,14 @@
           window.localStorage.setItem("user_id", response.id);
           window.localStorage.setItem("name", response.name);
 
+          //Changes the html page
           window.location = 'index.html';
 
         }
 
         let failureCallback = function(response) {
           $('#errorMessage').html(response.responseText);
+          //document.elementById('errorMessage').innerHtml = response.responseText
         }
 
         apiLogin(data, successCallback, failureCallback);

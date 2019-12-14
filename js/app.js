@@ -16,4 +16,5 @@ function createPostItem(data) {
 
 function insertIntoFeed(item) {
     $('#feed').append(item);
+    //document.getElementById(feed).append(item);
 }

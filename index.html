@@ -105,40 +105,41 @@
   <script src="./js/jquery.js"></script>
   <script type="text/javascript">
 
-
+        console.log(window.localStorage.getItem('user_id'));
         function submitPost() {
-
-            if(!window.localStorage.getItem('user_id')) {
-              alert("You must login or register ");
-            }
 
             event.preventDefault()
 
-            let subject = $("#subject").val();
-            let content = $("#content").val();
-            let image = $("#image").val();
+            if(!window.localStorage.getItem('user_id')) {
+              alert("You must login or register ");
+            } else {
 
-            let data = {  
-                user_id : window.localStorage.getItem('user_id'),
-                title : subject,
-                body : content,
-                image_url : image
-            };
+              let subject = $("#subject").val();
+              let content = $("#content").val();
+              let image = $("#image").val();
 
-            var succcesInsert = function(response) {
-                let item = createPostItem(response);
-                insertIntoFeed(item);
+              let data = {  
+                  user_id : window.localStorage.getItem('user_id'),
+                  title : subject,
+                  body : content,
+                  image_url : image
+              };
 
-                $("#subject").val('');
-                $("#content").val('');
-                $("#image").val('')
-            };
+              var succcesInsert = function(response) {
+                  let item = createPostItem(response);
+                  insertIntoFeed(item);
 
-            var errorInsert = function(xhr, error){
-                console.log(error);
+                  $("#subject").val('');
+                  $("#content").val('');
+                  $("#image").val('')
+              };
+
+              var errorInsert = function(xhr, error){
+                  console.log(error);
+              }
+
+              apiInsertPost(data, succcesInsert, errorInsert);
             }
-
-            apiInsertPost(data, succcesInsert, errorInsert);
         }
 
 
