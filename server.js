@@ -7,10 +7,40 @@ const config = {
 
 var express = require('express');
 var bodyParser = require('body-parser');
-var cors = require('cors')
+var cors = require('cors');
+
+const bcrypt = require('bcrypt');
 
 const pgp = require('pg-promise')();
 const db = pgp(config);
+
+const Sequelize = require('sequelize')
+const UsersModel = require('./models/users')
+const PostsModel = require('./models/posts')
+const CommentsModel = require('./models/comments')
+
+const sequelize = new Sequelize('social_feed', 'postgres', '', {
+    host: 'localhost',
+    dialect: 'postgres',
+    pool: {
+        max: 10,
+        min: 0,
+        acquire: 30000,
+        idle: 10000
+    }
+})
+
+//Models
+const Users = UsersModel(sequelize, Sequelize)
+const Posts = PostsModel(sequelize, Sequelize)
+const Comments = CommentsModel(sequelize, Sequelize)
+
+
+//Joins
+Users.hasMany(Posts, {foreignKey: 'user_id'})
+Posts.belongsTo(Users, {foreignKey: 'user_id'})
+
+
 
 var app = express();
 
@@ -20,14 +50,12 @@ app.use(cors())
 
 
 app.get('/api/posts', function (req, res) {
-    db.query('SELECT * FROM posts JOIN users ON posts.user_id = users.id')
-        .then((results) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(results));
-        })
-        .catch((e) => {
-            console.error(e);
-        });
+
+    Posts.findAll({include: [Users]}).then((results) => {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(results));
+    });
+
 });
 
 app.get('/api/posts/:id', function (req, res) {
@@ -53,23 +81,10 @@ app.post('/api/posts', function (req, res) {
         image_url: req.body.image_url
     };
 
-    let query = "INSERT INTO posts(title, body, user_id, image_url) VALUES (${title}, ${body}, ${user_id}, ${image_url}) RETURNING id";
-
-    db.one(query, data)
-        .then((result) => {
-
-            db.one("SELECT * FROM posts JOIN users ON posts.user_id=users.id WHERE posts.id=$1", [result.id])
-                .then((results) => {
-                    res.setHeader('Content-Type', 'application/json');
-                    res.end(JSON.stringify(results));
-                })
-                .catch((e) => {
-                    console.error(e);
-                });
-        })
-        .catch((e) => {
-            console.error(e);
-        });
+    Posts.create(data).then(function (post) {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(post));
+    });
 });
 
 app.put('/api/posts/:id', function (req, res) {
@@ -94,7 +109,7 @@ app.put('/api/posts/:id', function (req, res) {
                 })
                 .catch((e) => {
                     console.error(e);
-            });
+                });
 
         })
         .catch((e) => {
@@ -126,25 +141,17 @@ app.post('/api/register', function (req, res) {
     };
 
     if (data.name && data.email && data.password) {
-        let query = "INSERT INTO users(name, email, password) VALUES (${name}, ${email}, ${password}) RETURNING id";
 
-        db.one(query, data)
-            .then((result) => {
+        var salt = bcrypt.genSaltSync(10);
+        var hash = bcrypt.hashSync(data.password, salt);
 
-                db.one("SELECT * FROM users WHERE id=$1", [result.id])
-                    .then((results) => {
-                        res.setHeader('Content-Type', 'application/json');
-                        res.end(JSON.stringify(results));
-                    })
-                    .catch((e) => {
-                        console.error(e);
-                    });
+        data['password'] = hash;
 
+        Users.create(data).then(function (user) {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(user));
+        });;
 
-            })
-            .catch((e) => {
-                console.error(e);
-            });
     } else {
         res.status(434).send('Name, email and password is required to register')
     }
@@ -157,19 +164,29 @@ app.post('/api/login', function (req, res) {
     let password = req.body.password;
 
     if (email && password) {
-        db.one("SELECT * FROM users WHERE email=$1", [email])
-            .then((results) => {
 
-                if (results.password == password) {
+        Users.findOne({
+            where: {
+                email: email
+            },
+
+        }).then((results) => {
+            
+            bcrypt.compare(password, results.password).then(function(matched) {
+                if (matched) {
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify(results));
                 } else {
                     res.status(434).send('Email/Password combination did not match')
                 }
-            })
-            .catch((e) => {
-                res.status(434).send('Email does not exist in the database')
             });
+
+            
+        }).catch((e) => {
+            res.status(434).send('Email does not exist in the database')
+        });
+
+
     } else {
         res.status(434).send('Both email and password is required to login')
     }
@@ -215,14 +232,11 @@ app.get('/api/comments/post/:id', function (req, res) {
 
 
 app.get('/api/users', function (req, res) {
-    db.query('SELECT * FROM users')
-        .then((results) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(results));
-        })
-        .catch((e) => {
-            console.error(e);
-        });
+
+    Users.findAll().then((results) => {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(results));
+    });
 });
 
 
