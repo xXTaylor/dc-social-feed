@@ -8,6 +8,8 @@ const config = {
 var express = require('express');
 var bodyParser = require('body-parser');
 var cors = require('cors');
+var session = require('express-session')
+var cookieParser = require('cookie-parser')
 
 const bcrypt = require('bcrypt');
 
@@ -40,14 +42,19 @@ const Comments = CommentsModel(sequelize, Sequelize)
 Users.hasMany(Posts, {foreignKey: 'user_id'})
 Posts.belongsTo(Users, {foreignKey: 'user_id'})
 
-
-
+//Create App
 var app = express();
 
+app.set('view engine', 'ejs');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors())
+app.use(cookieParser())
 
+
+app.get('/login', function(req, res) {
+    res.render('pages/login');
+});
 
 app.get('/api/posts', function (req, res) {
 
@@ -81,10 +88,16 @@ app.post('/api/posts', function (req, res) {
         image_url: req.body.image_url
     };
 
-    Posts.create(data).then(function (post) {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(post));
-    });
+    if(data.title && data.body && data.user_id) {
+        Posts.create(data).then(function (post) {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(post));
+        }).catch(function(e) {
+            res.status(434).send('Unable to create the post.')
+        });
+    } else {
+        res.status(434).send('Title, body and user_id is required for making a post')
+    }
 });
 
 app.put('/api/posts/:id', function (req, res) {
@@ -136,7 +149,7 @@ app.post('/api/register', function (req, res) {
 
     let data = {
         name: req.body.name,
-        email: req.body.email,
+        email: req.body.email.toLowerCase().trim(),
         password: req.body.password
     };
 
@@ -160,7 +173,7 @@ app.post('/api/register', function (req, res) {
 
 app.post('/api/login', function (req, res) {
 
-    let email = req.body.email;
+    let email = req.body.email.toLowerCase().trim();
     let password = req.body.password;
 
     if (email && password) {
