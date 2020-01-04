@@ -1,8 +1,9 @@
 const config = {
     host: 'localhost',
     port: 5432,
-    database: 'social_feed',
-    user: 'postgres'
+    database: 'social feed',
+    username: 'postgres',
+    password: '',
 };
 
 var express = require('express');
@@ -14,15 +15,26 @@ var cookieParser = require('cookie-parser')
 const bcrypt = require('bcrypt');
 
 const pgp = require('pg-promise')();
-const db = pgp(config);
+const db = pgp(process.env.DATABASE_URL || config);
 
 const Sequelize = require('sequelize')
 const UsersModel = require('./models/users')
 const PostsModel = require('./models/posts')
 const CommentsModel = require('./models/comments')
 
-const sequelize = new Sequelize('social_feed', 'postgres', '', {
-    host: 'localhost',
+// const sequelize = new Sequelize('social_feed', 'postgres', '', {
+//     host: 'localhost',
+//     dialect: 'postgres',
+//     pool: {
+//         max: 10,
+//         min: 0,
+//         acquire: 30000,
+//         idle: 10000
+//     }
+// })
+
+const connectionString = `postgres://${config.username}:${config.password}@${config.host}:${config.port}/${config.database}`
+const sequelize = new Sequelize(process.env.DATABASE_URL || connectionString, {
     dialect: 'postgres',
     pool: {
         max: 10,
@@ -254,6 +266,6 @@ app.get('/api/users', function (req, res) {
 
 
 
-app.listen(3000, function () {
+app.listen(process.env.PORT || 3000, function () {
     console.log('Todo List API is now listening on port 3000...');
 })
