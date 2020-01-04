@@ -2,7 +2,7 @@
   "development": {
     "username": "postgres",
     "password": null,
-    "database": "social_feed",
+    "database": "social feed",
     "host": "127.0.0.1",
     "dialect": "postgres",
     "operatorsAliases": false
